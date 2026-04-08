@@ -1,23 +1,40 @@
 <html>
-  <body>
-    <script>
-      function injectStyle() {
-        try {
-          var parent = window.parent;
-          var doc = parent.document;
-          var existing = doc.getElementById('legend-fix');
-          if (!existing) {
-            var style = doc.createElement('style');
-            style.id = 'legend-fix';
-            style.innerHTML = '.jimu-widget-legend .layer-caption { display: none !important; }';
-            doc.head.appendChild(style);
-          }
-        } catch(e) {
-          console.log('Blocked:', e);
-        }
-      }
-      // Keep trying every second
-      setInterval(injectStyle, 1000);
-    </script>
-  </body>
+<head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      margin: 10px;
+      background: white;
+    }
+    .group-title {
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+    .sublabel {
+      margin-left: 10px;
+      margin-bottom: 4px;
+      color: #333;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-left: 20px;
+      margin-bottom: 4px;
+    }
+    .line {
+      width: 30px;
+      height: 3px;
+      margin-right: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="group-title">Top 20 Waterway-Pathway Projects</div>
+  <div class="sublabel">ID & Extents</div>
+  <div class="legend-item">
+    <div class="line" style="background: brown;"></div> #1 - Near Midway Rd to Lone Star Rd
+  </div>
+  <!-- Add more items here -->
+</body>
 </html>

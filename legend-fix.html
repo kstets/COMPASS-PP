@@ -1,7 +1,23 @@
-<script>
-  window.parent.document.head.appendChild(
-    Object.assign(document.createElement('style'), {
-      innerHTML: '.jimu-widget-legend .layer-caption { display: none; }'
-    })
-  );
-</script>
+<html>
+  <body>
+    <script>
+      function injectStyle() {
+        try {
+          var parent = window.parent;
+          var doc = parent.document;
+          var existing = doc.getElementById('legend-fix');
+          if (!existing) {
+            var style = doc.createElement('style');
+            style.id = 'legend-fix';
+            style.innerHTML = '.jimu-widget-legend .layer-caption { display: none !important; }';
+            doc.head.appendChild(style);
+          }
+        } catch(e) {
+          console.log('Blocked:', e);
+        }
+      }
+      // Keep trying every second
+      setInterval(injectStyle, 1000);
+    </script>
+  </body>
+</html>

@@ -9,12 +9,19 @@
     }
     .group-title {
       font-weight: bold;
-      margin-bottom: 6px;
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+    .layer-name {
+      font-weight: bold;
+      margin-left: 10px;
+      margin-bottom: 4px;
+      display: none; /* hides layer name */
     }
     .sublabel {
       margin-left: 10px;
-      margin-bottom: 4px;
-      color: #333;
+      margin-bottom: 6px;
+      font-weight: bold;
     }
     .legend-item {
       display: flex;
@@ -22,19 +29,85 @@
       margin-left: 20px;
       margin-bottom: 4px;
     }
-    .line {
-      width: 30px;
-      height: 3px;
+    .legend-item img {
       margin-right: 8px;
     }
   </style>
 </head>
 <body>
-  <div class="group-title">Top 20 Waterway-Pathway Projects</div>
-  <div class="sublabel">ID & Extents</div>
-  <div class="legend-item">
-    <div class="line" style="background: brown;"></div> #1 - Near Midway Rd to Lone Star Rd
-  </div>
-  <!-- Add more items here -->
+  <div id="legend">Loading legend...</div>
+
+  <script>
+    const webmapId = '2db22fd68b1940f9b10218a8060207e5';
+    const portalUrl = 'https://kai.maps.arcgis.com';
+
+    async function loadLegend() {
+      try {
+        // Fetch webmap JSON
+        const itemRes = await fetch(`${portalUrl}/sharing/rest/content/items/${webmapId}/data?f=json`);
+        const webmap = await itemRes.json();
+
+        const legendDiv = document.getElementById('legend');
+        legendDiv.innerHTML = '';
+
+        for (const layer of webmap.operationalLayers) {
+          // Group title
+          if (layer.layers || layer.layerType === 'GroupLayer') {
+            const groupTitle = document.createElement('div');
+            groupTitle.className = 'group-title';
+            groupTitle.textContent = layer.title;
+            legendDiv.appendChild(groupTitle);
+
+            for (const sublayer of layer.layers || []) {
+              await renderLayer(sublayer, legendDiv);
+            }
+          } else {
+            await renderLayer(layer, legendDiv);
+          }
+        }
+      } catch(e) {
+        document.getElementById('legend').textContent = 'Error loading legend: ' + e.message;
+      }
+    }
+
+    async function renderLayer(layer, container) {
+      if (!layer.url) return;
+
+      try {
+        const legendRes = await fetch(`${layer.url}/legend?f=json`);
+        const legendData = await legendRes.json();
+
+        for (const l of legendData.layers || []) {
+          // Sublabel (e.g. "ID & Extents")
+          const sublabel = document.createElement('div');
+          sublabel.className = 'sublabel';
+          sublabel.textContent = l.layerName;
+          container.appendChild(sublabel);
+
+          for (const item of l.legend || []) {
+            const div = document.createElement('div');
+            div.className = 'legend-item';
+
+            if (item.imageData) {
+              const img = document.createElement('img');
+              img.src = `data:${item.contentType};base64,${item.imageData}`;
+              img.width = 30;
+              img.height = 10;
+              div.appendChild(img);
+            }
+
+            const label = document.createElement('span');
+            label.textContent = item.label;
+            div.appendChild(label);
+            container.appendChild(div);
+          }
+        }
+      } catch(e) {
+        console.log('Layer error:', e);
+      }
+    }
+
+    loadLegend();
+  </script>
 </body>
 </html>
